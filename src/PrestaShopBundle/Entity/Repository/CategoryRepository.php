@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2017 PrestaShop
+ * 2007-2018 PrestaShop.
  *
  * NOTICE OF LICENSE
  *
@@ -19,7 +19,7 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
+ * @copyright 2007-2018 PrestaShop SA
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
@@ -68,14 +68,14 @@ class CategoryRepository
      * @param Connection $connection
      * @param ContextAdapter $contextAdapter
      * @param $tablePrefix
+     *
      * @throws NotImplementedException
      */
     public function __construct(
         Connection $connection,
         ContextAdapter $contextAdapter,
         $tablePrefix
-    )
-    {
+    ) {
         $this->connection = $connection;
         $this->tablePrefix = $tablePrefix;
 
@@ -87,7 +87,7 @@ class CategoryRepository
         }
 
         $languageId = $context->employee->id_lang;
-        $this->languageId = (int)$languageId;
+        $this->languageId = (int) $languageId;
 
         if (!$context->shop instanceof Shop) {
             throw new RuntimeException('Determining the active shop requires a contextual shop instance.');
@@ -103,6 +103,7 @@ class CategoryRepository
 
     /**
      * @param bool $tree if tree needed for categories
+     *
      * @return mixed
      */
     public function getCategories($tree = false)
@@ -115,6 +116,7 @@ class CategoryRepository
             FROM {table_prefix}category c
             INNER JOIN {table_prefix}category_lang cl ON (cl.id_category = c.id_category AND cl.id_lang = :language_id AND cl.id_shop = :shop_id)
             INNER JOIN {table_prefix}category_shop cs ON (cs.id_category = c.id_category AND cs.id_shop = :shop_id)
+            ORDER BY c.id_parent ASC
         ');
 
         $statement = $this->connection->prepare($query);
@@ -136,6 +138,7 @@ class CategoryRepository
 
     /**
      * @param $rows array categories rows
+     *
      * @return array
      */
     private function buildTreeCategories($rows)

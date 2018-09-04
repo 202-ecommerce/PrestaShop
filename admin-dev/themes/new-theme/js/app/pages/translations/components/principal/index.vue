@@ -1,5 +1,5 @@
 <!--**
- * 2007-2017 PrestaShop
+ * 2007-2018 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -18,36 +18,45 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
+ * @copyright 2007-2018 PrestaShop SA
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  * International Registered Trademark & Property of PrestaShop SA
  *-->
 <template>
-  <div class="col-xs-9 card">
-    <div class="p-x-1 row translations-wrapper">
-      <transition name="fade">
-        <div v-if="principalReady">
-          <div class="col-xs-6 p-t-1" >
-            <h1 class="domain-info">
+  <transition name="fade">
+    <div class="col-sm-9 card" v-if="principalReady">
+      <div class="p-3 translations-wrapper">
+        <PSAlert v-if="noResult" alertType="ALERT_TYPE_WARNING" :hasClose="false">
+          {{noResultInfo}}
+        </PSAlert>
+        <div class="translations-catalog row p-0" v-else>
+          <PSAlert v-if="searchActive" class="col-sm-12" alertType="ALERT_TYPE_INFO" :hasClose="false">
+            {{searchInfo}}
+          </PSAlert>
+          <div class="col-sm-8 pt-3">
+            <h3 class="domain-info">
               <span>{{ currentDomain }}</span>
               <span>{{ currentDomainTotalTranslations }}</span>
               <span v-show="currentDomainTotalMissingTranslations"> - <span class="missing">{{ currentDomainTotalMissingTranslationsString }}</span></span>
-            </h1>
+            </h3>
           </div>
-          <div class="col-xs-6">
+          <div class="col-sm-4">
             <PSPagination
-              pageNumber="3"
-              activeMultiPagination="5"
-              :current="currentPagination"
+              :currentIndex="currentPagination"
               :pagesCount="pagesCount"
-              class="pull-xs-right"
+              class="float-sm-right"
               @pageChanged="onPageChanged"
             />
           </div>
-          <form class="col-xs-12" :action="saveAction" method="post" @submit.prevent="saveTranslations">
+          <form class="col-sm-12"
+            method="post"
+            :action="saveAction"
+            :isEdited="isEdited"
+            @submit.prevent="saveTranslations"
+          >
             <div class="row">
-              <div class="col-xs-12">
-                <PSButton :primary="true" type="submit" class="pull-xs-right">
+              <div class="col-sm-12 mb-2">
+                <PSButton :primary="true" type="submit" class="float-sm-right">
                   {{ trans('button_save') }}
                 </PSButton>
               </div>
@@ -56,34 +65,46 @@
             <TranslationInput
               v-for="(translation, key) in translationsCatalog"
               :key="key"
+              :id="key"
               :translated="translation"
               :label="translation.default"
-              :extraInfo="getDomain(translation.tree_domain)">
+              :extraInfo="getDomain(translation.tree_domain)"
+              @editedAction="isEdited"
+              >
             </TranslationInput>
-            <PSButton :primary="true" type="submit" class="pull-xs-right m-t-2">
-              {{ trans('button_save') }}
-            </PSButton>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <PSButton :primary="true" type="submit" class="float-sm-right mt-3">
+                  {{ trans('button_save') }}
+                </PSButton>
+              </div>
+            </div>
           </form>
-          <div class="col-xs-12">
+          <div class="col-sm-12">
             <PSPagination
-              :current="currentPagination"
+              :currentIndex="currentPagination"
               :pagesCount="pagesCount"
               @pageChanged="onPageChanged"
             />
           </div>
         </div>
-      </transition>
+      </div>
     </div>
-  </div>
+  </transition>
 </template>
 
 <script>
   import TranslationInput from './translation-input';
   import PSButton from 'app/widgets/ps-button';
   import PSPagination from 'app/widgets/ps-pagination';
+  import PSAlert from 'app/widgets/ps-alert';
   import { EventBus } from 'app/utils/event-bus';
 
   export default {
+    props: [
+      'modal',
+    ],
     computed: {
       principalReady() {
         return !this.$store.state.principalLoading;
@@ -108,19 +129,72 @@
         return this.$store.state.currentDomain;
       },
       currentDomainTotalTranslations() {
-        return this.$store.state.currentDomainTotalTranslations ? `- ${this.trans('label_total_domain').replace('%nb_translations%', this.$store.state.currentDomainTotalTranslations)}` : '';
+        return (this.$store.state.currentDomainTotalTranslations <= 1) ? `- ${this.trans('label_total_domain_singular').replace('%nb_translation%', this.$store.state.currentDomainTotalTranslations)}` : `- ${this.trans('label_total_domain').replace('%nb_translations%', this.$store.state.currentDomainTotalTranslations)}`;
       },
       currentDomainTotalMissingTranslations() {
         return this.$store.state.currentDomainTotalMissingTranslations;
       },
       currentDomainTotalMissingTranslationsString() {
-        return this.trans('label_missing').replace('%d', this.currentDomainTotalMissingTranslations);
+        let totalMissingTranslationsString = '';
+
+        if (
+          this.currentDomainTotalMissingTranslations
+          && this.currentDomainTotalMissingTranslations === 1
+        ) {
+          totalMissingTranslationsString = this.trans('label_missing_singular');
+        } else if (this.currentDomainTotalMissingTranslations) {
+          totalMissingTranslationsString = this.trans('label_missing').replace('%d', this.currentDomainTotalMissingTranslations);
+        }
+
+        return totalMissingTranslationsString;
+      },
+      noResult() {
+        return (this.$store.getters.currentDomain === '' || typeof this.$store.getters.currentDomain === 'undefined');
+      },
+      noResultInfo() {
+        return this.trans('no_result').replace('%s', this.$store.getters.searchTags.join(' - '));
+      },
+      searchActive() {
+        return this.$store.getters.searchTags.length;
+      },
+      searchInfo() {
+        return (this.$store.state.totalTranslations <= 1) ? this.trans('search_info_singular').replace('%s', this.$store.getters.searchTags.join(' - ')).replace('%d', this.$store.state.totalTranslations) : this.trans('search_info').replace('%s', this.$store.getters.searchTags.join(' - ')).replace('%d', this.$store.state.totalTranslations);
       },
     },
     methods: {
-      onPageChanged(pageIndex) {
+      /**
+       * Dispatch the event to change the page index,
+       * get the translations and reset the modified translations into the state
+       * @param {Integer} pageIndex
+       */
+      changePage: function changePage(pageIndex) {
         this.$store.dispatch('updatePageIndex', pageIndex);
         this.fetch();
+        this.$store.state.modifiedTranslations = [];
+      },
+      isEdited(input) {
+        if (input.translation.edited) {
+          this.$store.state.modifiedTranslations[input.id] = input.translation;
+        } else {
+          this.$store.state.modifiedTranslations.splice(
+            this.$store.state.modifiedTranslations.indexOf(input.id),
+            1
+          );
+        }
+      },
+      onPageChanged(pageIndex) {
+        if (this.edited()) {
+          this.modal.showModal();
+          this.modal.$once('save', () => {
+            this.saveTranslations();
+            this.changePage(pageIndex);
+          });
+          this.modal.$once('leave', () => {
+            this.changePage(pageIndex);
+          });
+        } else {
+          this.changePage(pageIndex);
+        }
       },
       fetch() {
         this.$store.dispatch('getCatalog', {
@@ -148,29 +222,28 @@
         }
       },
       getModifiedTranslations() {
-        const modifiedTranslations = [];
-
-        this.translations.forEach((translation) => {
-          if (translation.edited) {
-            modifiedTranslations.push({
-              default: translation.default,
-              edited: translation.edited,
-              domain: translation.tree_domain.join(''),
-              locale: window.data.locale,
-              theme: window.data.selected,
-            });
-          }
+        this.modifiedTranslations = [];
+        this.$store.state.modifiedTranslations.forEach((translation) => {
+          this.modifiedTranslations.push({
+            default: translation.default,
+            edited: translation.edited,
+            domain: translation.tree_domain.join(''),
+            locale: window.data.locale,
+            theme: window.data.selected,
+          });
         });
 
-        return modifiedTranslations;
+        return this.modifiedTranslations;
+      },
+      edited() {
+        return this.$store.state.modifiedTranslations.length > 0;
       },
     },
-    data() {
-      return {
-        translations: [],
-        originalTranslations: [],
-      };
-    },
+    data: () => ({
+      translations: [],
+      originalTranslations: [],
+      modifiedTranslations: [],
+    }),
     mounted() {
       EventBus.$on('resetTranslation', (el) => {
         const translations = [];
@@ -192,19 +265,14 @@
       TranslationInput,
       PSButton,
       PSPagination,
+      PSAlert,
     },
   };
 </script>
 
 <style lang="sass" scoped>
-  @import "~PrestaKit/scss/custom/_variables.scss";
+  @import "../../../../../../scss/config/_settings.scss";
 
-  .domain-info {
-    font-size: 1rem;
-  }
-  .translations-wrapper {
-    min-height: 300px;
-  }
   .fade-enter-active, .fade-leave-active {
     transition: opacity .5s
   }

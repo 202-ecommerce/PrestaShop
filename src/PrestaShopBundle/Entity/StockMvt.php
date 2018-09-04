@@ -1,4 +1,28 @@
 <?php
+/**
+ * 2007-2018 PrestaShop.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * https://opensource.org/licenses/OSL-3.0
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ * @author    PrestaShop SA <contact@prestashop.com>
+ * @copyright 2007-2018 PrestaShop SA
+ * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
+ * International Registered Trademark & Property of PrestaShop SA
+ */
 
 namespace PrestaShopBundle\Entity;
 
@@ -6,7 +30,7 @@ use Doctrine\ORM\Mapping as ORM;
 use PrestaShop\PrestaShop\Adapter\Configuration;
 
 /**
- * StockMvt
+ * StockMvt.
  *
  * @ORM\Table(indexes={@ORM\Index(name="id_stock", columns={"id_stock"}), @ORM\Index(name="id_stock_mvt_reason", columns={"id_stock_mvt_reason"})})
  * @ORM\Entity(repositoryClass="PrestaShopBundle\Entity\Repository\StockMovementRepository")
@@ -14,7 +38,7 @@ use PrestaShop\PrestaShop\Adapter\Configuration;
 class StockMvt
 {
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id_stock_mvt", type="bigint")
      * @ORM\Id
@@ -22,37 +46,36 @@ class StockMvt
      */
     private $idStockMvt;
 
-
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id_stock", type="integer", nullable=false)
      */
     private $idStock;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id_order", type="integer", nullable=true)
      */
     private $idOrder;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id_supply_order", type="integer", nullable=true)
      */
     private $idSupplyOrder;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id_stock_mvt_reason", type="integer", nullable=false)
      */
     private $idStockMvtReason;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="id_employee", type="integer", nullable=false)
      */
@@ -73,7 +96,7 @@ class StockMvt
     private $employeeFirstname = '';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="physical_quantity", type="integer", nullable=false)
      */
@@ -87,47 +110,50 @@ class StockMvt
     private $dateAdd;
 
     /**
-     * @var boolean
+     * @var int
      *
-     * @ORM\Column(name="sign", type="smallint", nullable=false)
+     * @ORM\Column(name="sign", type="smallint", nullable=false, options={"default":1})
      */
     private $sign = '1';
 
     /**
      * @var string
      *
-     * @ORM\Column(name="price_te", type="decimal", precision=20, scale=6, nullable=true)
+     * @ORM\Column(name="price_te", type="decimal", precision=20, scale=6, nullable=true, options={"default":"0.000000"})
      */
     private $priceTe = '0.000000';
 
     /**
      * @var string
      *
-     * @ORM\Column(name="last_wa", type="decimal", precision=20, scale=6, nullable=true)
+     * @ORM\Column(name="last_wa", type="decimal", precision=20, scale=6, nullable=true, options={"default":"0.000000"})
      */
     private $lastWa = '0.000000';
 
     /**
      * @var string
      *
-     * @ORM\Column(name="current_wa", type="decimal", precision=20, scale=6, nullable=true)
+     * @ORM\Column(name="current_wa", type="decimal", precision=20, scale=6, nullable=true, options={"default":"0.000000"})
      */
     private $currentWa = '0.000000';
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="referer", type="bigint", nullable=true)
      */
     private $referer;
 
-
-
+    public function __construct()
+    {
+        $configuration = new Configuration();
+        $this->setIdStockMvtReason($this->getSign() >= 1 ? $configuration->get('PS_STOCK_MVT_INC_EMPLOYEE_EDITION') : $configuration->get('PS_STOCK_MVT_DEC_EMPLOYEE_EDITION'));
+    }
 
     /**
-     * Get idStockMvt
+     * Get idStockMvt.
      *
-     * @return integer
+     * @return int
      */
     public function getIdStockMvt()
     {
@@ -135,9 +161,9 @@ class StockMvt
     }
 
     /**
-     * Set idStock
+     * Set idStock.
      *
-     * @param integer $idStock
+     * @param int $idStock
      *
      * @return StockMvt
      */
@@ -149,9 +175,9 @@ class StockMvt
     }
 
     /**
-     * Get idStock
+     * Get idStock.
      *
-     * @return integer
+     * @return int
      */
     public function getIdStock()
     {
@@ -159,9 +185,9 @@ class StockMvt
     }
 
     /**
-     * Set idOrder
+     * Set idOrder.
      *
-     * @param integer $idOrder
+     * @param int $idOrder
      *
      * @return StockMvt
      */
@@ -173,9 +199,9 @@ class StockMvt
     }
 
     /**
-     * Get idOrder
+     * Get idOrder.
      *
-     * @return integer
+     * @return int
      */
     public function getIdOrder()
     {
@@ -183,9 +209,9 @@ class StockMvt
     }
 
     /**
-     * Set idSupplyOrder
+     * Set idSupplyOrder.
      *
-     * @param integer $idSupplyOrder
+     * @param int $idSupplyOrder
      *
      * @return StockMvt
      */
@@ -197,9 +223,9 @@ class StockMvt
     }
 
     /**
-     * Get idSupplyOrder
+     * Get idSupplyOrder.
      *
-     * @return integer
+     * @return int
      */
     public function getIdSupplyOrder()
     {
@@ -207,9 +233,9 @@ class StockMvt
     }
 
     /**
-     * Set idStockMvtReason
+     * Set idStockMvtReason.
      *
-     * @param integer $idStockMvtReason
+     * @param int $idStockMvtReason
      *
      * @return StockMvt
      */
@@ -221,24 +247,19 @@ class StockMvt
     }
 
     /**
-     * Get idStockMvtReason
+     * Get idStockMvtReason.
      *
-     * @return integer
+     * @return int
      */
     public function getIdStockMvtReason()
     {
-        if (0 === $this->idStockMvtReason) {
-            $configuration = new Configuration();
-            $this->setIdStockMvtReason($this->getSign() >= 1 ? $configuration->get('PS_STOCK_MVT_INC_EMPLOYEE_EDITION') : $configuration->get('PS_STOCK_MVT_DEC_EMPLOYEE_EDITION'));
-        }
-
         return $this->idStockMvtReason;
     }
 
     /**
-     * Set idEmployee
+     * Set idEmployee.
      *
-     * @param integer $idEmployee
+     * @param int $idEmployee
      *
      * @return StockMvt
      */
@@ -250,9 +271,9 @@ class StockMvt
     }
 
     /**
-     * Get idEmployee
+     * Get idEmployee.
      *
-     * @return integer
+     * @return int
      */
     public function getIdEmployee()
     {
@@ -260,7 +281,7 @@ class StockMvt
     }
 
     /**
-     * Set employeeLastname
+     * Set employeeLastname.
      *
      * @param string $employeeLastname
      *
@@ -274,7 +295,7 @@ class StockMvt
     }
 
     /**
-     * Get employeeLastname
+     * Get employeeLastname.
      *
      * @return string
      */
@@ -284,7 +305,7 @@ class StockMvt
     }
 
     /**
-     * Set employeeFirstname
+     * Set employeeFirstname.
      *
      * @param string $employeeFirstname
      *
@@ -298,7 +319,7 @@ class StockMvt
     }
 
     /**
-     * Get employeeFirstname
+     * Get employeeFirstname.
      *
      * @return string
      */
@@ -308,9 +329,9 @@ class StockMvt
     }
 
     /**
-     * Set physicalQuantity
+     * Set physicalQuantity.
      *
-     * @param integer $physicalQuantity
+     * @param int $physicalQuantity
      *
      * @return StockMvt
      */
@@ -322,9 +343,9 @@ class StockMvt
     }
 
     /**
-     * Get physicalQuantity
+     * Get physicalQuantity.
      *
-     * @return integer
+     * @return int
      */
     public function getPhysicalQuantity()
     {
@@ -332,7 +353,7 @@ class StockMvt
     }
 
     /**
-     * Set dateAdd
+     * Set dateAdd.
      *
      * @param \DateTime $dateAdd
      *
@@ -346,7 +367,7 @@ class StockMvt
     }
 
     /**
-     * Get dateAdd
+     * Get dateAdd.
      *
      * @return \DateTime
      */
@@ -356,9 +377,9 @@ class StockMvt
     }
 
     /**
-     * Set sign
+     * Set sign.
      *
-     * @param boolean $sign
+     * @param int $sign
      *
      * @return StockMvt
      */
@@ -370,9 +391,9 @@ class StockMvt
     }
 
     /**
-     * Get sign
+     * Get sign.
      *
-     * @return boolean
+     * @return int
      */
     public function getSign()
     {
@@ -380,7 +401,7 @@ class StockMvt
     }
 
     /**
-     * Set priceTe
+     * Set priceTe.
      *
      * @param string $priceTe
      *
@@ -394,7 +415,7 @@ class StockMvt
     }
 
     /**
-     * Get priceTe
+     * Get priceTe.
      *
      * @return string
      */
@@ -404,7 +425,7 @@ class StockMvt
     }
 
     /**
-     * Set lastWa
+     * Set lastWa.
      *
      * @param string $lastWa
      *
@@ -418,7 +439,7 @@ class StockMvt
     }
 
     /**
-     * Get lastWa
+     * Get lastWa.
      *
      * @return string
      */
@@ -428,7 +449,7 @@ class StockMvt
     }
 
     /**
-     * Set currentWa
+     * Set currentWa.
      *
      * @param string $currentWa
      *
@@ -442,7 +463,7 @@ class StockMvt
     }
 
     /**
-     * Get currentWa
+     * Get currentWa.
      *
      * @return string
      */
@@ -452,9 +473,9 @@ class StockMvt
     }
 
     /**
-     * Set referer
+     * Set referer.
      *
-     * @param integer $referer
+     * @param int $referer
      *
      * @return StockMvt
      */
@@ -466,9 +487,9 @@ class StockMvt
     }
 
     /**
-     * Get referer
+     * Get referer.
      *
-     * @return integer
+     * @return int
      */
     public function getReferer()
     {

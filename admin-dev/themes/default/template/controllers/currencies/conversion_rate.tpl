@@ -1,5 +1,5 @@
 {**
- * 2007-2017 PrestaShop
+ * 2007-2018 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -18,7 +18,7 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
+ * @copyright 2007-2018 PrestaShop SA
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  * International Registered Trademark & Property of PrestaShop SA
  *}
@@ -47,7 +47,7 @@
 					<div class="pull-right checkbox titatoggle unchecked-red checkbox-slider--b-flat"></div>
 					<div class="clearfix"></div>
 				</div>
-				<span class="status disabled">{l s='Please install %module_name% before using this feature' sprintf=['%module_name%' => 'cronjobs'] d='Admin.International.Notification'}</span>
+				<span class="status disabled">{l s='Please install the %module_name% module before using this feature.' sprintf=['%module_name%' => 'cronjobs'] d='Admin.International.Notification'}</span>
 			</div>
 		{/if}
 		<div class="panel">

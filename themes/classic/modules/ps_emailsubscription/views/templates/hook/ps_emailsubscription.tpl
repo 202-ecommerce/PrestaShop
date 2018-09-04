@@ -1,5 +1,5 @@
 {**
- * 2007-2017 PrestaShop
+ * 2007-2018 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -18,14 +18,14 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
+ * @copyright 2007-2018 PrestaShop SA
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  *}
 
 <div class="block_newsletter col-lg-8 col-md-12 col-sm-12">
   <div class="row">
-    <p id="block-newsletter-label" class="col-md-5 col-xs-12">{l s='Get our latest news and special sales' d='Shop.Theme'}</p>
+    <p id="block-newsletter-label" class="col-md-5 col-xs-12">{l s='Get our latest news and special sales' d='Shop.Theme.Global'}</p>
     <div class="col-md-7 col-xs-12">
       <form action="{$urls.pages.index}#footer" method="post">
         <div class="row">
@@ -45,7 +45,7 @@
             <div class="input-wrapper">
               <input
                 name="email"
-                type="text"
+                type="email"
                 value="{$value}"
                 placeholder="{l s='Your email address' d='Shop.Forms.Labels'}"
                 aria-labelledby="block-newsletter-label"
@@ -62,6 +62,9 @@
                 <p class="alert {if $nw_error}alert-danger{else}alert-success{/if}">
                   {$msg}
                 </p>
+              {/if}
+              {if isset($id_module)}
+                {hook h='displayGDPRConsent' id_module=$id_module}
               {/if}
           </div>
         </div>

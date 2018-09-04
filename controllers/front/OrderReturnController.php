@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2017 PrestaShop
+ * 2007-2018 PrestaShop.
  *
  * NOTICE OF LICENSE
  *
@@ -19,12 +19,12 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
+ * @copyright 2007-2018 PrestaShop SA
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
 use PrestaShop\PrestaShop\Adapter\Image\ImageRetriever;
-use PrestaShop\PrestaShop\Adapter\Order\OrderReturnPresenter;
+use PrestaShop\PrestaShop\Adapter\Presenter\Order\OrderReturnPresenter;
 
 class OrderReturnControllerCore extends FrontController
 {
@@ -171,7 +171,7 @@ class OrderReturnControllerCore extends FrontController
 
         if (($id_order_return = (int) Tools::getValue('id_order_return')) && Validate::isUnsignedId($id_order_return)) {
             $breadcrumb['links'][] = array(
-                'title' => $this->trans('Merchandise returns', array(), 'Shop.Theme'),
+                'title' => $this->trans('Merchandise returns', array(), 'Shop.Theme.Global'),
                 'url' => $this->context->link->getPageLink('order-follow'),
             );
         }

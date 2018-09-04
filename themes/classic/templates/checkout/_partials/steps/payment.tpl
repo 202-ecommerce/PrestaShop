@@ -98,7 +98,7 @@
                         value = "1"
                         class = "ps-shown-by-js"
                 >
-                <span><i class="material-icons checkbox-checked">&#xE5CA;</i></span>
+                <span><i class="material-icons rtl-no-flip checkbox-checked">&#xE5CA;</i></span>
               </span>
             </div>
             <div class="condition-label">
@@ -148,7 +148,7 @@
   <div class="modal fade" id="modal">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
-        <button type="button" class="close" data-dismiss="modal" aria-label="{l s='Close' d='Shop.Theme'}">
+        <button type="button" class="close" data-dismiss="modal" aria-label="{l s='Close' d='Shop.Theme.Global'}">
           <span aria-hidden="true">&times;</span>
         </button>
         <div class="js-modal-content"></div>

@@ -1,5 +1,5 @@
 <!--**
- * 2007-2017 PrestaShop
+ * 2007-2018 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -18,18 +18,18 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
+ * @copyright 2007-2018 PrestaShop SA
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  * International Registered Trademark & Property of PrestaShop SA
  *-->
 <template>
   <div class="form-group">
     <label>{{label}}</label>
-    <textarea class="form-control" v-model="getTranslated" :class="{ missing : isMissing }"></textarea>
-    <PSButton class="m-t-1 pull-xs-right" :primary="false" ghost @click="resetTranslation">
+    <textarea class="form-control" rows="2" v-model="getTranslated" :class="{ missing : isMissing }"></textarea>
+    <PSButton class="mt-3 float-sm-right" :primary="false" ghost @click="resetTranslation">
       {{ trans('button_reset') }}
     </PSButton>
-    <small class="m-t-1">{{extraInfo}}</small>
+    <small class="mt-3">{{extraInfo}}</small>
   </div>
 </template>
 
@@ -40,6 +40,9 @@
   export default {
     name: 'TranslationInput',
     props: {
+      id: {
+        type: Number,
+      },
       extraInfo: {
         type: String,
         required: false,
@@ -62,6 +65,10 @@
           modifiedTranslated.database = modifiedValue;
           modifiedTranslated.edited = modifiedValue;
           this.$emit('input', modifiedTranslated);
+          this.$emit('editedAction', {
+            translation: modifiedTranslated,
+            id: this.id,
+          });
         },
       },
       isMissing() {
@@ -81,8 +88,11 @@
 </script>
 
 <style lang="sass" scoped>
-  @import "~PrestaKit/scss/custom/_variables.scss";
+  @import "../../../../../../scss/config/_settings.scss";
 
+  .form-group {
+    overflow: hidden;
+  }
   .missing {
     border: 1px solid $danger;
   }

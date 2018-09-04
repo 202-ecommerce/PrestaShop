@@ -1,5 +1,5 @@
 {**
- * 2007-2017 PrestaShop
+ * 2007-2018 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -18,7 +18,7 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
+ * @copyright 2007-2018 PrestaShop SA
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  * International Registered Trademark & Property of PrestaShop SA
  *}
@@ -262,7 +262,7 @@
 					{/if}
 				{else}
 				<p class="text-muted text-center">
-					{l s='%firstname% %lastname% has not placed any orders yet' sprintf=['%firstname' => '$customer->firstname', '%lastname%' => '$customer->lastname'] d='Admin.Orderscustomers.Feature'}
+					{l s='%firstname% %lastname% has not placed any orders yet' sprintf=['%firstname%' => $customer->firstname, '%lastname%' => $customer->lastname] d='Admin.Orderscustomers.Feature'}
 				</p>
 				{/if}
 			</div>
@@ -404,7 +404,7 @@
 					</table>
 				{else}
 				<p class="text-muted text-center">
-					{l s='%firstname% %lastname% has never contacted you' sprintf=['%firstname%' => '$customer->firstname', '%lastname%' => '$customer->lastname'] d='Admin.Orderscustomers.Feature'}
+					{l s='%firstname% %lastname% has never contacted you' sprintf=['%firstname%' => $customer->firstname, '%lastname%' => $customer->lastname] d='Admin.Orderscustomers.Feature'}
 				</p>
 				{/if}
 			</div>
@@ -452,7 +452,7 @@
 					</table>
 				{else}
 				<p class="text-muted text-center">
-					{l s='%firstname% %lastname% has no discount vouchers' sprintf=['%firstname%' => '$customer->firstname', '%lastname%' => '$customer->lastname'] d='Admin.Orderscustomers.Feature'}
+					{l s='%firstname% %lastname% has no discount vouchers' sprintf=['%firstname%' => $customer->firstname, '%lastname%' => $customer->lastname] d='Admin.Orderscustomers.Feature'}
 				</p>
 				{/if}
 			</div>
@@ -641,6 +641,7 @@
 													{l s='Delete' d='Admin.Actions'}
 												</a>
 											</li>
+                      {hook h="displayAdminCustomersAddressesItemAction" id_address=$address['id_address']|intval}
 										</ul>
 									</div>
 								</td>
@@ -650,7 +651,7 @@
 					</table>
 				{else}
 					<p class="text-muted text-center">
-						{l s='%firstname% %lastname% has not registered any addresses yet' sprintf=['%firstname%' => '$customer->firstname', '%lastname%' => '$customer->lastname']}
+						{l s='%firstname% %lastname% has not registered any addresses yet' sprintf=['%firstname%' => $customer->firstname, '%lastname%' => $customer->lastname]}
 					</p>
 				{/if}
 			</div>

@@ -1,5 +1,5 @@
 {**
- * 2007-2017 PrestaShop
+ * 2007-2018 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -18,7 +18,7 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
+ * @copyright 2007-2018 PrestaShop SA
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  * International Registered Trademark & Property of PrestaShop SA
  *}
@@ -29,10 +29,10 @@
 				<i class="{$timeline_item.icon}"></i>
 			</span>
 			<span class="timeline-date"><i class="icon-calendar"></i> {dateFormat date=$timeline_item.date full=0} - <i class="icon-time"></i> {$timeline_item.date|substr:11:5}</span>
-			{if isset($timeline_item.id_order)}<a class="badge" href="#">{l s="Order #" d='Admin.OrdersCustomers.Feature'}{$timeline_item.id_order|intval}</a><br/>{/if}
+			{if isset($timeline_item.id_order)}<a class="badge" href="#">{l s="Order #" d='Admin.Orderscustomers.Feature'}{$timeline_item.id_order|intval}</a><br/>{/if}
 			<span>{$timeline_item.content|nl2br}</span>
 			{if isset($timeline_item.see_more_link)}
-				<br/><br/><a href="{$timeline_item.see_more_link|escape:'html':'UTF-8'}" class="btn btn-default _blank">{l s="See more" d='Admin.OrdersCustomers.Feature'}</a>
+				<br/><br/><a href="{$timeline_item.see_more_link|escape:'html':'UTF-8'}" class="btn btn-default _blank">{l s="See more" d='Admin.Orderscustomers.Feature'}</a>
 			{/if}
 		</div>
 	</div>

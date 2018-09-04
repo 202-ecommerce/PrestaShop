@@ -1,5 +1,5 @@
 {**
- * 2007-2017 PrestaShop
+ * 2007-2018 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -18,7 +18,7 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
+ * @copyright 2007-2018 PrestaShop SA
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  *}
@@ -40,8 +40,8 @@
     {block name='page_content_container'}
       <section id="content" class="page-content page-restricted">
         {block name='page_content'}
-          <h2>{l s='403 Forbidden' d='Shop.Theme'}</h2>
-          <p>{l s='You cannot access this store from your country. We apologize for the inconvenience.' d='Shop.Theme'}</p>
+          <h2>{l s='403 Forbidden' d='Shop.Theme.Global'}</h2>
+          <p>{l s='You cannot access this store from your country. We apologize for the inconvenience.' d='Shop.Theme.Global'}</p>
         {/block}
       </section>
     {/block}

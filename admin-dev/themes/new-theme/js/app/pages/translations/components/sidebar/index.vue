@@ -1,5 +1,5 @@
 <!--**
- * 2007-2017 PrestaShop
+ * 2007-2018 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -18,13 +18,13 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
+ * @copyright 2007-2018 PrestaShop SA
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  * International Registered Trademark & Property of PrestaShop SA
  *-->
 <template>
-  <div class="col-xs-3">
-    <div class="card p-a-1">
+  <div class="col-sm-3">
+    <div class="card p-3">
       <PSTree
         ref="domainTree"
         :model="domainsTree"
@@ -44,6 +44,10 @@
   import { EventBus } from 'app/utils/event-bus';
 
   export default {
+    props: [
+      'modal',
+      'principal',
+    ],
     computed: {
       treeReady() {
         return !this.$store.state.sidebarLoading;
@@ -52,11 +56,17 @@
         if (this.$store.getters.currentDomain === '' || typeof this.$store.getters.currentDomain === 'undefined') {
           if (this.domainsTree.length) {
             const domain = this.getFirstDomainToDisplay(this.domainsTree);
-            this.$store.dispatch('getCatalog', { url: domain.dataValue });
-            this.$store.dispatch('updateCurrentDomain', domain);
             EventBus.$emit('reduce');
-            EventBus.$emit('setCurrentElement', domain.full_name);
-            return domain.full_name;
+            this.$store.dispatch('updateCurrentDomain', domain);
+
+            if (domain !== '') {
+              this.$store.dispatch('getCatalog', { url: domain.dataValue });
+              EventBus.$emit('setCurrentElement', domain.full_name);
+              return domain.full_name;
+            }
+
+            this.$store.dispatch('updatePrincipalLoading', false);
+            return '';
           }
         }
 
@@ -70,18 +80,41 @@
           expand: this.trans('sidebar_expand'),
           reduce: this.trans('sidebar_collapse'),
           extra: this.trans('label_missing'),
+          extra_singular: this.trans('label_missing_singular'),
         };
       },
     },
     mounted() {
-      this.$store.dispatch('getDomainsTree');
+      this.$store.dispatch('getDomainsTree', {
+        store: this.$store,
+      });
       EventBus.$on('lastTreeItemClick', (el) => {
-        this.$store.dispatch('updateCurrentDomain', el.item);
-        this.$store.dispatch('getCatalog', { url: el.item.dataValue });
-        this.$store.dispatch('updatePageIndex', 1);
+        if (this.edited()) {
+          this.modal.showModal();
+          this.modal.$once('save', () => {
+            this.principal.saveTranslations();
+            this.itemClick(el);
+          });
+          this.modal.$once('leave', () => {
+            this.itemClick(el);
+          });
+        } else {
+          this.itemClick(el);
+        }
       });
     },
     methods: {
+      /**
+       * Update the domain, retrieve the translations catalog, set the page to 1
+       * and reset the modified translations
+       * @param {object} el - Domain to set
+       */
+      itemClick: function itemClick(el) {
+        this.$store.dispatch('updateCurrentDomain', el.item);
+        this.$store.dispatch('getCatalog', { url: el.item.dataValue });
+        this.$store.dispatch('updatePageIndex', 1);
+        this.$store.state.modifiedTranslations = [];
+      },
       getFirstDomainToDisplay: function getFirstDomainToDisplay(tree) {
         const keys = Object.keys(tree);
         let toDisplay = '';
@@ -99,6 +132,13 @@
 
         return toDisplay;
       },
+      /**
+       * Check if some translations have been edited
+       * @returns {boolean}
+       */
+      edited: function edited() {
+        return this.$store.state.modifiedTranslations.length > 0;
+      },
     },
     components: {
       PSTree,
@@ -107,23 +147,11 @@
   };
 </script>
 
-<style lang="sass">
-  @import "~PrestaKit/scss/custom/_variables.scss";
-  .tree-header {
-    .pointer {
-      font-size: .65rem;
-      strong {
-        font-weight: 700;
-      }
-      .material-icons {
-        font-size: 25px;
-      }
-    }
-  }
+<style lang="sass" type="text/scss">
+  @import "../../../../../../scss/config/_settings.scss";
   .translationTree {
     .tree-name {
       margin-bottom: .9375rem;
-      line-height: 1.5rem;
 
       &.active {
         font-weight: bold;
@@ -137,6 +165,16 @@
       color: $danger;
       text-transform: uppercase;
       font-size: .65rem;
+      margin-left: auto;
+    }
+    .tree-extra-label-mini {
+      background-color: $danger;
+      color: #ffffff;
+      padding: 0 0.5rem;
+      border-radius: 0.75rem;
+      display: inline-block;
+      font-size: .75rem;
+      height: 1.5rem;
       margin-left: auto;
     }
     .tree-label {

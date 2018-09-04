@@ -1,5 +1,5 @@
 /**
- * 2007-2017 PrestaShop
+ * 2007-2018 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -18,10 +18,67 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
+ * @copyright 2007-2018 PrestaShop SA
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
+
+var Tools = {
+
+  /**
+   * Constructs a float value from an arbitrarily-formatted string.
+   * In order to prevent unexpected behavior, make sure that your value has a decimal part.
+   * @param {String} value Value to convert to float
+   * @param {Boolean} [coerce=false] If true, this function will return 0 instad of NaN if the value cannot be parsed to float
+   *
+   * @return {Number}
+   */
+  parseFloatFromString: function(value, coerce) {
+    value = String(value).trim();
+
+    if ('' === value) {
+      return 0;
+    }
+
+    // check if the string can be converted to float as-is
+    var parsed = parseFloat(value);
+    if (String(parsed) === value) {
+      return parsed;
+    }
+
+    // replace arabic numbers by latin
+		value = value
+			// arabic
+			.replace(/[\u0660-\u0669]/g, function(d) {
+				return d.charCodeAt(0) - 1632;
+			})
+			// persian
+			.replace(/[\u06F0-\u06F9]/g, function(d) {
+        return d.charCodeAt(0) - 1776;
+      })
+		;
+
+    // remove all non-digit characters
+    var split = value.split(/[^\dE-]+/);
+
+    if (1 === split.length) {
+      // there's no decimal part
+      return parseFloat(value);
+    }
+
+    for (var i = 0; i < split.length; i++) {
+      if ('' === split[i]) {
+        return coerce ? 0 : NaN;
+      }
+    }
+
+    // use the last part as decimal
+    var decimal = split.pop();
+
+    // reconstruct the number using dot as decimal separator
+    return parseFloat(split.join('') +  '.' + decimal);
+  }
+};
 
 /**
  * @returns float parsed from a string containing a formatted price

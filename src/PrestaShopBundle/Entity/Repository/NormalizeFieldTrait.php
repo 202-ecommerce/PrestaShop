@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2017 PrestaShop
+ * 2007-2018 PrestaShop.
  *
  * NOTICE OF LICENSE
  *
@@ -19,7 +19,7 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
+ * @copyright 2007-2018 PrestaShop SA
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
@@ -30,33 +30,52 @@ trait NormalizeFieldTrait
 {
     /**
      * @param $rows
+     *
      * @return mixed
      */
     protected function castNumericToInt($rows)
     {
         $castIdentifiersToIntegers = function (&$columnValue, $columnName) {
-            if ($this->shouldCastToInt($columnName)) {
-                $columnValue = (int)$columnValue;
+            if ($this->shouldCastToInt($columnName, $columnValue)) {
+                $columnValue = (int) $columnValue;
             }
         };
 
-        array_walk($rows, function (&$rowColumns) use ($castIdentifiersToIntegers) {
-            array_walk($rowColumns, $castIdentifiersToIntegers);
-        });
+        array_walk_recursive($rows, $castIdentifiersToIntegers);
 
         return $rows;
     }
 
     /**
-     * @param $columnName
+     * @param $rows
+     *
+     * @return mixed
+     */
+    protected function castIdsToArray($rows)
+    {
+        $castIdentifiersToArray = function (&$columnValue, $columnName) {
+            if ($this->shouldCastToInt($columnName, $columnValue)) {
+                $columnValue = array_map('intval', explode(',', $columnValue));
+            }
+        };
+
+        array_walk_recursive($rows, $castIdentifiersToArray);
+
+        return $rows;
+    }
+
+    /**
+     * @param string $columnName
+     * @param string $columnValue
+     *
      * @return bool
      */
-    private function shouldCastToInt($columnName)
+    private function shouldCastToInt($columnName, $columnValue)
     {
-        return false !== strpos($columnName, '_id') ||
-        false !== strpos($columnName, 'id_') ||
-        false !== strpos($columnName, '_quantity') ||
-        false !== strpos($columnName, 'sign') ||
-        false !== strpos($columnName, 'total_');
+        if (null === $columnValue || 'N/A' === $columnValue) {
+            return false;
+        }
+
+        return preg_match('/_id|id_|_quantity|sign|active|total_|low_stock_/', $columnName);
     }
 }

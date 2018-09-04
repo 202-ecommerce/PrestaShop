@@ -1,5 +1,5 @@
 <!--**
- * 2007-2017 PrestaShop
+ * 2007-2018 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -18,27 +18,67 @@
  * needs please refer to http://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2017 PrestaShop SA
+ * @copyright 2007-2018 PrestaShop SA
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  * International Registered Trademark & Property of PrestaShop SA
  *-->
 <template>
   <div class="input-group date">
-    <input type='text' class="form-control" />
-    <span class="input-group-addon">
-      <i class="material-icons">event</i>
-    </span>
+    <input ref="datepicker" type="text" class="form-control" />
+    <div class="input-group-append">
+      <span class="input-group-text">
+        <i class="material-icons">event</i>
+      </span>
+    </div>
   </div>
 </template>
 
 <script>
   export default {
+    props: {
+      locale: {
+        type: String,
+        required: true,
+        default: 'en',
+      },
+      type: {
+        type: String,
+        required: true,
+      },
+    },
     mounted() {
-      $(this.$el).datetimepicker({
-        format: 'MM/dd/YYYY',
+      $(this.$refs.datepicker).datetimepicker({
+        format: 'YYYY-MM-DD',
+        showClear: true,
       }).on('dp.change', (infos) => {
-        this.$emit('dpChange', infos);
+        infos.dateType = this.type;
+        this.$emit(
+          infos.date ? 'dpChange' : 'reset',
+          infos,
+        );
       });
     },
   };
 </script>
+
+<style lang="sass">
+  @import "../../../scss/config/_settings.scss";
+
+  .date {
+    a[data-action='clear']::before {
+      font-family: 'Material Icons';
+      content: "\E14C";
+      font-size: 20px;
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      margin-left: -10px;
+      color: $gray-dark;
+      cursor:pointer;
+    }
+    .bootstrap-datetimepicker-widget tr td span:hover {
+      background-color: white;
+    }
+  }
+
+</style>
