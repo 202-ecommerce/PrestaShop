@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2018 PrestaShop.
+ * 2007-2019 PrestaShop and Contributors
  *
  * NOTICE OF LICENSE
  *
@@ -16,17 +16,17 @@
  *
  * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
  * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to http://www.prestashop.com for more information.
+ * needs please refer to https://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2018 PrestaShop SA
+ * @copyright 2007-2019 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-use PrestaShop\PrestaShop\Core\Product\Search\ProductSearchQuery;
-use PrestaShop\PrestaShop\Core\Product\Search\SortOrder;
 use PrestaShop\PrestaShop\Adapter\Category\CategoryProductSearchProvider;
 use PrestaShop\PrestaShop\Adapter\Image\ImageRetriever;
+use PrestaShop\PrestaShop\Core\Product\Search\ProductSearchQuery;
+use PrestaShop\PrestaShop\Core\Product\Search\SortOrder;
 
 class CategoryControllerCore extends ProductListingFrontController
 {
@@ -52,7 +52,22 @@ class CategoryControllerCore extends ProductListingFrontController
 
     public function getCanonicalURL()
     {
-        return $this->context->link->getCategoryLink($this->category);
+        $canonicalUrl = $this->context->link->getCategoryLink($this->category);
+        $parsedUrl = parse_url($canonicalUrl);
+        if (isset($parsedUrl['query'])) {
+            parse_str($parsedUrl['query'], $params);
+        } else {
+            $params = array();
+        }
+        $page = (int) Tools::getValue('page');
+        if ($page > 1) {
+            $params['page'] = $page;
+        } else {
+            unset($params['page']);
+        }
+        $canonicalUrl = http_build_url($parsedUrl, ['query' => http_build_query($params)]);
+
+        return $canonicalUrl;
     }
 
     /**
@@ -139,13 +154,21 @@ class CategoryControllerCore extends ProductListingFrontController
         return parent::getLayout();
     }
 
+    protected function getAjaxProductSearchVariables()
+    {
+        $data = parent::getAjaxProductSearchVariables();
+        $rendered_products_header = $this->render('catalog/_partials/category-header', array('listing' => $data));
+        $data['rendered_products_header'] = $rendered_products_header;
+
+        return $data;
+    }
+
     protected function getProductSearchQuery()
     {
         $query = new ProductSearchQuery();
         $query
             ->setIdCategory($this->category->id)
-            ->setSortOrder(new SortOrder('product', Tools::getProductsOrder('by'), Tools::getProductsOrder('way')))
-        ;
+            ->setSortOrder(new SortOrder('product', Tools::getProductsOrder('by'), Tools::getProductsOrder('way')));
 
         return $query;
     }

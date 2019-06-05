@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2018 PrestaShop.
+ * 2007-2019 PrestaShop and Contributors
  *
  * NOTICE OF LICENSE
  *
@@ -16,10 +16,10 @@
  *
  * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
  * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to http://www.prestashop.com for more information.
+ * needs please refer to https://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2018 PrestaShop SA
+ * @copyright 2007-2019 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
@@ -29,6 +29,7 @@ namespace PrestaShopBundle\Entity\Repository;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use PrestaShop\PrestaShop\Core\Grid\Query\DoctrineQueryBuilderInterface;
+use PrestaShop\PrestaShop\Core\Grid\Query\DoctrineSearchCriteriaApplicatorInterface;
 use PrestaShop\PrestaShop\Core\Grid\Search\SearchCriteriaInterface;
 use PrestaShop\PrestaShop\Core\Repository\RepositoryInterface;
 
@@ -41,11 +42,20 @@ class LogRepository implements RepositoryInterface, DoctrineQueryBuilderInterfac
     private $databasePrefix;
     private $logTable;
 
-    public function __construct(Connection $connection, $databasePrefix)
-    {
+    /**
+     * @var DoctrineSearchCriteriaApplicatorInterface
+     */
+    private $searchCriteriaApplicator;
+
+    public function __construct(
+        Connection $connection,
+        $databasePrefix,
+        DoctrineSearchCriteriaApplicatorInterface $searchCriteriaApplicator
+    ) {
         $this->connection = $connection;
         $this->databasePrefix = $databasePrefix;
         $this->logTable = $this->databasePrefix . 'log';
+        $this->searchCriteriaApplicator = $searchCriteriaApplicator;
     }
 
     /**
@@ -118,8 +128,7 @@ class LogRepository implements RepositoryInterface, DoctrineQueryBuilderInterfac
             ->innerJoin('l', $employeeTable, 'e', 'l.id_employee = e.id_employee')
             ->orderBy($filters['orderBy'], $filters['sortOrder'])
             ->setFirstResult($filters['offset'])
-            ->setMaxResults($filters['limit'])
-        ;
+            ->setMaxResults($filters['limit']);
 
         if (!empty($scalarFilters)) {
             foreach ($scalarFilters as $column => $value) {
@@ -132,8 +141,8 @@ class LogRepository implements RepositoryInterface, DoctrineQueryBuilderInterfac
         if (!empty($wheres['date_from']) && !empty($wheres['date_to'])) {
             $qb->andWhere('l.date_add BETWEEN :date_from AND :date_to');
             $qb->setParameters(array(
-               'date_from' => $wheres['date_from'],
-               'date_to' => $wheres['date_to'],
+                'date_from' => $wheres['date_from'],
+                'date_to' => $wheres['date_to'],
             ));
         }
 
@@ -167,16 +176,14 @@ class LogRepository implements RepositoryInterface, DoctrineQueryBuilderInterfac
      *
      * @return QueryBuilder
      */
-    public function getSearchQueryBuilder(SearchCriteriaInterface $searchCriteria = null)
+    public function getSearchQueryBuilder(SearchCriteriaInterface $searchCriteria)
     {
         $qb = $this->buildGridQuery($searchCriteria);
-        $qb->select('l.*', 'e.email', 'CONCAT(e.firstname, \' \', e.lastname) as employee')
-            ->orderBy(
-                $searchCriteria->getOrderBy(),
-                $searchCriteria->getOrderWay()
-            )
-            ->setFirstResult($searchCriteria->getOffset())
-            ->setMaxResults($searchCriteria->getLimit());
+        $qb->select('l.*', 'e.email', 'CONCAT(e.firstname, \' \', e.lastname) as employee');
+
+        $this->searchCriteriaApplicator
+            ->applyPagination($searchCriteria, $qb)
+            ->applySorting($searchCriteria, $qb);
 
         return $qb;
     }
@@ -188,7 +195,7 @@ class LogRepository implements RepositoryInterface, DoctrineQueryBuilderInterfac
      *
      * @return QueryBuilder
      */
-    public function getCountQueryBuilder(SearchCriteriaInterface $searchCriteria = null)
+    public function getCountQueryBuilder(SearchCriteriaInterface $searchCriteria)
     {
         $qb = $this->buildGridQuery($searchCriteria);
         $qb->select('COUNT(*)');
@@ -203,14 +210,14 @@ class LogRepository implements RepositoryInterface, DoctrineQueryBuilderInterfac
      *
      * @return QueryBuilder
      */
-    private function buildGridQuery(SearchCriteriaInterface $searchCriteria = null)
+    private function buildGridQuery(SearchCriteriaInterface $searchCriteria)
     {
         $employeeTable = $this->databasePrefix . 'employee';
 
         $qb = $this->connection
             ->createQueryBuilder()
             ->from($this->logTable, 'l')
-            ->innerJoin('l', $employeeTable, 'e', 'l.id_employee = e.id_employee');
+            ->leftJoin('l', $employeeTable, 'e', 'l.id_employee = e.id_employee');
 
         if (null === $searchCriteria) {
             return $qb;
@@ -225,6 +232,7 @@ class LogRepository implements RepositoryInterface, DoctrineQueryBuilderInterfac
             if ('employee' == $filterName) {
                 $qb->andWhere('e.lastname LIKE :employee OR e.firstname LIKE :employee');
                 $qb->setParameter('employee', '%' . $filterValue . '%');
+
                 continue;
             }
 
@@ -238,6 +246,7 @@ class LogRepository implements RepositoryInterface, DoctrineQueryBuilderInterfac
                         'date_to' => $filterValue['to'],
                     ));
                 }
+
                 continue;
             }
 
